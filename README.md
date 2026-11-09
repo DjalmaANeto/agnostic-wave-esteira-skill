@@ -46,6 +46,7 @@ Requisitos:
 | Taxonomia | prefixo do ID (`AJ`), próximo número pelo maior ID existente, sub-épico, tipo (`Feature`), rótulos |
 | Projetos | `Djalma0multfacil#1` (Project "Atribuição") |
 | Status inicial | `Desenvolvimento` |
+| Skills das sessões | `/caveman:caveman /orquestrar /esteira` |
 
 Nada é criado antes do **portão**: a skill mostra a divisão em tasks e espera "aprovado".
 
@@ -56,6 +57,7 @@ Nada é criado antes do **portão**: a skill mostra a divisão em tasks e espera
 base: feature/atribuicao
 projetos: Djalma0multfacil#1 x-men-evolution#22
 taxonomia: AJ
+skills: /caveman:caveman /orquestrar /esteira
 
 onda 1
 AJ-18a api#2560
@@ -66,7 +68,7 @@ AJ-18b portal-professor#2016  requer: api#2560
 ```
 ````
 
-Linhas `chave: valor` são metadados. `projetos:` vai para o prompt da sessão coordenadora.
+Linhas `chave: valor` são metadados. `projetos:` vai para o prompt da sessão coordenadora. `skills:` define as skills de cada sessão: a task abre com `/esteira` e invoca as demais (padrão `/caveman:caveman` e `/orquestrar`); a coordenadora invoca só as que não são de desenvolvimento (padrão `/caveman:caveman`). Sem `skills:`, vale `$ESTEIRA_SKILLS` ou o padrão.
 
 ```bash
 esteira-ondas "<plano>" --status               # tasks, worktrees e dependências
@@ -83,3 +85,6 @@ O script pula a task que já tem worktree (`<sub>.worktrees/<n>-*`) e a task com
 |---|---|
 | `DEV_LOCALHOST` | raiz do workspace onde as sessões abrem (padrão `~/src/github.com/x-men-evolution/dev.localhost`) |
 | `CLAUDE_BIN` | binário do Claude Code (padrão: `claude` no PATH) |
+| `ESTEIRA_SKILLS` | skills das sessões quando o bloco não tem `skills:` (padrão `/caveman:caveman /orquestrar /esteira`) |
+
+As skills `/caveman:caveman` (plugin caveman) e `/orquestrar` precisam estar instaladas no ambiente onde as sessões abrem.

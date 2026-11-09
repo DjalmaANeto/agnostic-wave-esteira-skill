@@ -32,6 +32,7 @@ Rode os `.py` com `python3 -I <caminho>`. Todos aceitam `--dry-run`.
 | Taxonomia: rótulos | pedido | nenhum |
 | Projetos | pedido, como `owner#numero` (aceite o nome: Atribuição = `Djalma0multfacil#1`, Educafácil = `x-men-evolution#22`) | `Djalma0multfacil#1` (Project "Atribuição", o padrão da `esteira`) |
 | Status inicial | pedido | `Desenvolvimento` |
+| Skills das sessões | pedido (linha `skills:` do bloco) | `/caveman:caveman /orquestrar /esteira` — cada task abre com `/esteira` e invoca as outras; a coordenadora invoca só `/caveman:caveman` |
 
 Projeto dado só pelo título: resolva com `gh project list --owner <owner>`.
 
@@ -60,7 +61,7 @@ Erro no meio do lote: pare, liste o que já foi criado (URLs) e pergunte. Não r
 
 ## 4. Registrar no plano
 
-- **Arquivo enviado:** edite-o no lugar, seguindo `modelo-plano.md`: seção "▶ Disparo orquestrado das ondas" no topo com o bloco `esteira-ondas` (`base:`, `projetos:`, `taxonomia:`, ondas com `requer:`), tabela da §3 com links, §4 com o diagrama das ondas e o caminho crítico, §7 com 7.1 regras, uma subseção por onda (7.2, 7.3, …) com checklist, e a coordenadora na última. Conteúdo existente (pedidos, diagnóstico, decisões) fica.
+- **Arquivo enviado:** edite-o no lugar, seguindo `modelo-plano.md`: seção "▶ Disparo orquestrado das ondas" no topo com o bloco `esteira-ondas` (`base:`, `projetos:`, `taxonomia:`, `skills:`, ondas com `requer:`), tabela da §3 com links, §4 com o diagrama das ondas e o caminho crítico, §7 com 7.1 regras, uma subseção por onda (7.2, 7.3, …) com checklist, e a coordenadora na última. Conteúdo existente (pedidos, diagnóstico, decisões) fica.
 - **Texto digitado:** grave como `~/src/github.com/djalmaaneto/WorkNotes/PlanoDesenvoivimento/<Título> - SubPlano.md` no mesmo layout, com o texto original na §1. "Vinculado a" só com o que o usuário citou.
 - Confira: `esteira-ondas "<plano>" --status` lista exatamente as tasks criadas, nas ondas certas.
 
@@ -84,7 +85,7 @@ esteira-ondas "<plano>" 1 --coordenador             # uma sessão por issue + se
 
 | Erro | Correção |
 |---|---|
-| Linha `chave: valor` no bloco virando task | Só `base:`, `projetos:`, `taxonomia:`; o script ignora `chave:` e lê `projetos:` para a coordenadora |
+| Linha `chave: valor` no bloco virando task | Só `base:`, `projetos:`, `taxonomia:`, `skills:`; o script ignora `chave:`, lê `projetos:` para a coordenadora e `skills:` para os prompts |
 | Renumerar/mover as seções 3, 4 e 7 | O prompt das sessões cita esses números; mantenha |
 | Status em um Project mudou o outro | Atribuição e Educafácil sincronizam por option id; o `projeto-status.py` confere cada Project separadamente |
 | Rótulo `atribuicao` na api | Só existe no portal-professor; o script ignora com aviso |

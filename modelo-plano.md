@@ -33,6 +33,7 @@ esteira-ondas "$P" 2 --coordenador          # onda 2: só abre a task com depend
 base: <base>
 projetos: <owner#numero> [<owner#numero> …]
 taxonomia: <PREFIXO>
+skills: /caveman:caveman /orquestrar /esteira
 
 onda 1
 <ID>  <repo>#<n>

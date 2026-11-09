@@ -6,6 +6,7 @@
 #
 #   base: feature/atribuicao
 #   projetos: Djalma0multfacil#1 x-men-evolution#22   (opcional; padrão: Atribuição + Educafácil)
+#   skills: /caveman:caveman /orquestrar /esteira      (opcional; padrão: $ESTEIRA_SKILLS ou estas três)
 #   onda 1
 #   AJ-07  portal-professor#1982
 #   onda 2
@@ -20,6 +21,9 @@
 #   --coordenador  abre também uma sessão coordenadora (acompanha as outras, não desenvolve)
 #   --terminal     ptyxis (padrão se houver display) ou tmux (sessão "esteira")
 #   --status       lista as tasks de todas as ondas com o estado de worktree e dependências
+#
+# Skills: cada sessão de task roda /esteira e invoca as demais da lista (ex.: /caveman:caveman,
+# /orquestrar); a coordenadora invoca só as que não são de desenvolvimento (sem /esteira e /orquestrar).
 set -euo pipefail
 
 ORG="x-men-evolution"
@@ -27,7 +31,7 @@ ROOT="${DEV_LOCALHOST:-$HOME/src/github.com/x-men-evolution/dev.localhost}"
 CLAUDE_BIN="${CLAUDE_BIN:-$(command -v claude || true)}"
 
 die() { echo "esteira-ondas: $*" >&2; exit 1; }
-usage() { sed -n '2,23p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+usage() { sed -n '2,26p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
 
 [[ $# -ge 1 ]] || usage 1
 [[ "$1" == "-h" || "$1" == "--help" ]] && usage 0
@@ -64,6 +68,23 @@ else
   PROJETOS_TXT="Projects Atribuição (Djalma0multfacil #1) e Educafácil (#22)"
 fi
 
+SKILLS="$(sed -n 's/^skills:[[:space:]]*//p' <<<"$BLOCO" | head -1)"
+SKILLS="${SKILLS:-${ESTEIRA_SKILLS:-/caveman:caveman /orquestrar /esteira}}"
+SKILLS_TASK="" SKILLS_COORD=""
+for s in $SKILLS; do
+  [[ "$s" == /* ]] || s="/$s"
+  case "$s" in
+    /esteira) ;;                                   # sempre o comando de abertura da task
+    /orquestrar) SKILLS_TASK+=" $s" ;;              # desenvolvimento: só nas tasks
+    *) SKILLS_TASK+=" $s"; SKILLS_COORD+=" $s" ;;
+  esac
+done
+invocar() { # lista -> frase para o prompt (vazia se a lista for vazia)
+  local l="${1# }"
+  [[ -n "$l" ]] && printf ' Antes de começar, invoque pela ferramenta Skill: %s.' "${l// /, }"
+  return 0
+}
+
 # Emite "onda<TAB>id<TAB>repo<TAB>numero<TAB>requer" por task.
 tasks() {
   awk '
@@ -94,13 +115,13 @@ worktree_existente() { # repo numero -> caminho do worktree, se existir
 
 # --- Montagem do prompt ------------------------------------------------------------
 prompt_task() { # id repo numero
-  printf '/esteira https://github.com/%s/%s/issues/%s base %s. Task %s do plano: %s (seções 3 e 4). Há outras sessões de esteira em paralelo nesta onda: se o push na branch de homologação tomar reject, refaça fetch + worktree detached + cherry-pick e tente de novo, sem force.' \
-    "$ORG" "$2" "$3" "$BASE" "$1" "$PLANO"
+  printf '/esteira https://github.com/%s/%s/issues/%s base %s. Task %s do plano: %s (seções 3 e 4). Há outras sessões de esteira em paralelo nesta onda: se o push na branch de homologação tomar reject, refaça fetch + worktree detached + cherry-pick e tente de novo, sem force.%s' \
+    "$ORG" "$2" "$3" "$BASE" "$1" "$PLANO" "$(invocar "$SKILLS_TASK")"
 }
 
 prompt_coordenador() { # onda lista_ids
-  printf 'Você é a sessão coordenadora da onda %s do plano %s (tasks: %s). Não desenvolva nenhuma issue. Use ListAgents para acompanhar as sessões de esteira abertas, SendMessage só se eu pedir, confira o Status das issues nos %s, e avise quando uma dependência da próxima onda for mergeada na %s. Marque os checklists da seção 7 do plano conforme os PRs avançarem. Rode `%s \"%s\" --status` para o panorama.' \
-    "$1" "$PLANO" "$2" "$PROJETOS_TXT" "$BASE" "$(basename "$0")" "$PLANO"
+  printf 'Você é a sessão coordenadora da onda %s do plano %s (tasks: %s). Não desenvolva nenhuma issue. Use ListAgents para acompanhar as sessões de esteira abertas, SendMessage só se eu pedir, confira o Status das issues nos %s, e avise quando uma dependência da próxima onda for mergeada na %s. Marque os checklists da seção 7 do plano conforme os PRs avançarem. Rode `%s \"%s\" --status` para o panorama.%s' \
+    "$1" "$PLANO" "$2" "$PROJETOS_TXT" "$BASE" "$(basename "$0")" "$PLANO" "$(invocar "$SKILLS_COORD")"
 }
 
 # --- Abertura dos terminais --------------------------------------------------------
